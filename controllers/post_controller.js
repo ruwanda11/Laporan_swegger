@@ -13,12 +13,24 @@ exports.getById = async (req, res) => {
     response.success(res, data.rows[0]);
 };
 
-exports.create = async (req, res) => {
-    const { judul, isi } = req.body;
-    const gambar = req.file ? req.file.filename : null;
+exports.create = async(req,res)=>{
 
-    const data = await Post.create(judul, isi, gambar);
-    response.success(res, data.rows[0], 'Post berhasil dibuat');
+const {judul,isi,category_id} = req.body;
+
+const gambar = req.file ? req.file.filename : null;
+
+await Post.create(
+judul,
+isi,
+gambar,
+null,
+category_id
+);
+
+res.json({
+message:"Post berhasil dibuat"
+});
+
 };
 
 exports.update = async (req, res) => {

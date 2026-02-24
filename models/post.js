@@ -1,17 +1,28 @@
 const pool = require('../config/db');
+const db = require('../config/db');
+exports.getAll = ()=>{
 
-exports.getAll = () => {
-    return pool.query('SELECT * FROM posts ORDER BY id DESC');
+return db.query(
+`SELECT posts.*,
+categories.nama as category
+FROM posts
+LEFT JOIN categories
+ON posts.category_id = categories.id
+ORDER BY posts.id ASC`
+);
+
 };
 
 exports.getById = (id) => {
     return pool.query('SELECT * FROM posts WHERE id = $1', [id]);
 };
 
-exports.create = (judul, isi, gambar) => {
-    return pool.query(
-        'INSERT INTO posts (judul, isi, gambar) VALUES ($1, $2, $3) RETURNING *',
-        [judul, isi, gambar]
+exports.create = (judul,isi,gambar,file,category_id)=>{
+    return db.query(
+        `INSERT INTO posts
+        (judul,isi,gambar,file,category_id)
+        VALUES($1,$2,$3,$4,$5)`,
+        [judul,isi,gambar,file,category_id]
     );
 };
 

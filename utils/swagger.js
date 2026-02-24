@@ -1,5 +1,6 @@
 const userSwagger = require('../routes/user_swagger');
 const postSwagger = require('../routes/post_swagger');
+const categorySwagger = require('../routes/category_swagger');
 
 module.exports = {
     openapi: '3.0.0',
@@ -20,6 +21,7 @@ module.exports = {
     security: [{ bearerAuth: [] }],
     paths: {
         ...userSwagger.paths,
-        ...postSwagger.paths
+        ...postSwagger.paths,
+        ...categorySwagger.paths 
     }
 };
