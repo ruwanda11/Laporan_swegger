@@ -18,7 +18,8 @@ module.exports = {
                                 properties: {
                                     judul: { type: 'string' },
                                     isi: { type: 'string' },
-                                    gambar: { type: 'string', format: 'binary' }
+                                    gambar: { type: 'string', format: 'binary' },
+                                    category_id: { type: 'integer', example: 1}
                                 }
                             }
                         }

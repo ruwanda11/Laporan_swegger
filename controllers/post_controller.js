@@ -1,5 +1,6 @@
 const Post = require('../models/post');
 const response = require('../utils/response');
+const { uploadImage } = require('../utils/upload');
 const fs = require('fs');
 const path = require('path');
 
@@ -17,7 +18,14 @@ exports.create = async(req,res)=>{
 
 const {judul,isi,category_id} = req.body;
 
-const gambar = req.file ? req.file.filename : null;
+let gambar = null;
+
+// TAMBAHAN SHARP + MINIO
+if(req.file){
+
+gambar = await uploadImage(req.file);
+
+}
 
 await Post.create(
 judul,
@@ -34,11 +42,21 @@ message:"Post berhasil dibuat"
 };
 
 exports.update = async (req, res) => {
-    const { id } = req.params;
-    const { judul, isi } = req.body;
-    const gambar = req.file ? req.file.filename : null;
 
-    await Post.update(id, judul, isi, gambar,);
+    const { id } = req.params;
+    const { judul, isi, category_id } = req.body;
+
+    let gambar = null;
+
+// TAMBAHAN SHARP + MINIO
+if(req.file){
+
+gambar = await uploadImage(req.file);
+
+}
+
+    await Post.update(id, judul, isi, gambar, category_id);
+
     response.success(res, null, 'Post berhasil diupdate');
 };
 

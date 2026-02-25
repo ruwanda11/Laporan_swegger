@@ -2,16 +2,11 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const postController = require('../controllers/post_controller');
-const authenticateToken = require('../middlewares/auth'); // kalau sudah ada
+const authenticateToken = require('../middlewares/auth');
 
-const storage = multer.diskStorage({
-    destination: 'uploads/',
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
+const upload = multer({
+    storage: multer.memoryStorage()
 });
-
-const upload = multer({ storage });
 
 // PUBLIC
 router.get('/posts', postController.getAll);

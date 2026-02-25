@@ -38,20 +38,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // UPLOAD CONFIG
 
 
-if (!fs.existsSync('public/images')) {
-    fs.mkdirSync('public/images', { recursive: true });
-}
 
-const storage = multer.diskStorage({
- destination: function (req, file, cb) {
-  cb(null, 'public/images');
- },
- filename: function (req, file, cb) {
-  cb(null, Date.now() + path.extname(file.originalname));
- }
-});
 
-const upload = multer({ storage: storage });
+
+
+
 
 app.use('/images', express.static('public/images'));
 
