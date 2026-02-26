@@ -11,11 +11,16 @@ exports.uploadImage = async (file) => {
         .jpeg({ quality: 80 })
         .toBuffer();
 
+        const metaData = {
+        'Content-Type': 'image/jpeg',
+    };
     // Upload ke MinIO
     await minioClient.putObject(
         bucketName,
         fileName,
-        buffer
+        buffer,
+        buffer.length, // Tambahkan ukuran buffer
+        metaData
     );
 
     return fileName;
