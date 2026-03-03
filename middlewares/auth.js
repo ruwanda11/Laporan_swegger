@@ -1,28 +1,25 @@
+// middlewares/auth.js
 const jwt = require('jsonwebtoken');
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Akses ditolak, token tidak ditemukan'
-        });
-    }
+    if (!token) return res.status(401).json({ message: 'Akses ditolak' });
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({
-                status: 'error',
-                message: 'Token tidak valid atau sudah kadaluarsa'
-            });
-        }
-
-        // data user dari token
-        req.user = user;
+        if (err) return res.status(403).json({ message: 'Token tidak valid' });
+        req.user = user; // Di sini user.role akan tersedia (admin atau user)
         next();
     });
 };
 
-module.exports = authenticateToken;
+// Middleware khusus untuk mengecek role admin
+const isAdmin = (req, res, next) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Hanya Admin yang diizinkan!' });
+    }
+    next();
+};
+
+module.exports = { authenticateToken, isAdmin };

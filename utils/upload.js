@@ -1,28 +1,33 @@
 const sharp = require('sharp');
-const { minioClient, bucketName } = require('../config/minio');
+const {minioClient} = require('../config/minio'); // Sesuaikan path config MinIO kamu
 
 exports.uploadImage = async (file) => {
+    // 1. Validasi apakah file dan buffer ada
+    if (!file || !file.buffer) {
+        throw new Error("File buffer tidak ditemukan. Pastikan Multer menggunakan memoryStorage.");
+    }
 
-    const fileName = Date.now() + '-' + file.originalname;
+    try {
+        const fileName = `${Date.now()}-${file.originalname}`;
+        
+        // 2. Proses gambar dengan Sharp (Contoh: resize agar ringan)
+        const optimizedBuffer = await sharp(file.buffer)
+            .resize(800) // Ukuran maksimal lebar 800px
+            .toFormat('jpeg')
+            .toBuffer();
 
-    // Resize gambar
-    const buffer = await sharp(file.buffer)
-        .resize(500)
-        .jpeg({ quality: 80 })
-        .toBuffer();
+        // 3. Upload buffer yang sudah dioptimasi ke MinIO
+        await minioClient.putObject(
+            'posts', // Nama bucket kamu
+            fileName,
+            optimizedBuffer,
+            optimizedBuffer.length,
+            { 'Content-Type': 'image/jpeg' }
+        );
 
-        const metaData = {
-        'Content-Type': 'image/jpeg',
-    };
-    // Upload ke MinIO
-    await minioClient.putObject(
-        bucketName,
-        fileName,
-        buffer,
-        buffer.length, // Tambahkan ukuran buffer
-        metaData
-    );
-
-    return fileName;
-
+        return fileName; // Kembalikan nama file agar bisa disimpan di Database
+    } catch (error) {
+        console.error("❌ Detail Error Sharp:", error);
+        throw new Error("Gagal memproses gambar: " + error.message);
+    }
 };

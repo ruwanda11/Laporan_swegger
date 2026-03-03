@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
     const accessToken = jwt.sign(
         { id: user.rows[0].id },
         ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '1d' }
     );
 
     const refreshToken = jwt.sign(
@@ -66,4 +66,17 @@ exports.refreshToken = async (req, res) => {
 
         response.success(res, { accessToken }, "Token diperbarui");
     });
+};
+// Tambahkan ini di paling bawah file user_controller.js
+exports.getAllUsers = async (req, res) => {
+    try {
+        // Asumsi model User punya fungsi getAllUsers
+        const users = await User.getAllUsers(); 
+        
+        // Menggunakan format response.success yang ada di file kamu
+        response.success(res, users.rows, "Data user berhasil diambil");
+    } catch (err) {
+        console.error("Error Detail:", err);
+        response.error(res, "Gagal mengambil data user dari database");
+    }
 };

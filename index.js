@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require('cors'); // <--- 1. Tambahkan ini
 const swaggerUi = require('swagger-ui-express');
 const multer = require('multer');
 const fs = require('fs');
@@ -12,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 
 // MIDDLEWARE
-
+app.use(cors()); // <--- 2. Tambahkan ini di atas routes
 app.use(express.json());
 
 
@@ -23,10 +24,10 @@ const userRoutes = require('./routes/user_route');
 const postRoutes = require('./routes/post_route');
 const categoryRoute = require('./routes/category_route');
 
-app.use('/', userRoutes);
-app.use('/', postRoutes);
-app.use('/categories', categoryRoute);
-
+// Ubah bagian ini di index.js backend
+app.use('/api', userRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/categories', categoryRoute);
 // SWAGGER
 
 const swaggerDocument = require('./utils/swagger');
@@ -37,14 +38,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // UPLOAD CONFIG
 
-
-
-
-
-
-
-
-app.use('/images', express.static('public/images'));
+app.use('/upload', express.static(path.join(__dirname,'uploads')));
 
 app.listen(PORT, () => {
 

@@ -8,7 +8,7 @@ module.exports = {
         title: 'API PKL',
         version: '1.0.0'
     },
-    servers: [{ url: 'http://localhost:3000' }],
+    servers: [{ url: 'http://localhost:3000/api' }],
     components: {
         securitySchemes: {
             bearerAuth: {

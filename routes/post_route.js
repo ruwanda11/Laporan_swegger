@@ -2,19 +2,24 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const postController = require('../controllers/post_controller');
-const authenticateToken = require('../middlewares/auth');
 
-const upload = multer({
-    storage: multer.memoryStorage()
-});
+// Import middleware dengan destructuring { }
+const { authenticateToken } = require('../middlewares/auth');
 
-// PUBLIC
-router.get('/posts', postController.getAll);
-router.get('/posts/:id', postController.getById);
+// Gunakan memoryStorage agar file tidak parkir di folder 'uploads' tapi langsung ke RAM
+// Ini syarat wajib agar fungsi upload ke MinIO di controller tidak menerima 'null'
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-// PROTECTED
-router.post('/posts', authenticateToken, upload.single('gambar'), postController.create);
-router.put('/posts/:id', authenticateToken, upload.single('gambar'), postController.update);
-router.delete('/posts/:id', authenticateToken, postController.remove);
+// --- DAFTAR ROUTE ---
+
+// Akses Publik
+router.get('/', postController.getAll);
+router.get('/:id', postController.getById);
+
+// Akses Terproteksi (Butuh Login & Upload Gambar)
+router.post('/', authenticateToken, upload.single('gambar'), postController.create);
+router.put('/:id', authenticateToken, upload.single('gambar'), postController.update);
+router.delete('/:id', authenticateToken, postController.remove);
 
 module.exports = router;

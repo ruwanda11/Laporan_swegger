@@ -1,19 +1,16 @@
+// config/minio.js
 const Minio = require('minio');
 
 const minioClient = new Minio.Client({
-
-    endPoint: 'localhost',
-    port: 9000,
+    endPoint: process.env.MINIO_ENDPOINT || 'localhost',
+    port: parseInt(process.env.MINIO_PORT) || 9000,
     useSSL: false,
-
-    accessKey: 'minioadmin',
-    secretKey: 'minioadmin'
-
+    accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
+    secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
 });
 
 const bucketName = 'posts';
 
-// Cek bucket otomatis
 const publicPolicy = {
     Version: "2012-10-17",
     Statement: [
@@ -32,15 +29,14 @@ const publicPolicy = {
     ]
 };
 
-// GANTI BAGIAN INI DI minio.js
+// Cek dan Inisialisasi Bucket
 minioClient.bucketExists(bucketName, function(err, exists) {
-    if (err) return console.log(err);
+    if (err) return console.log("❌ MinIO Error:", err);
 
     if (!exists) {
-        // Jika bucket belum ada, buat baru lalu set jadi Public
         minioClient.makeBucket(bucketName, 'us-east-1', function(err) {
             if (err) return console.log(err);
-            console.log("Bucket berhasil dibuat");
+            console.log("✅ Bucket posts berhasil dibuat");
             
             minioClient.setBucketPolicy(bucketName, JSON.stringify(publicPolicy), function(err) {
                 if (err) return console.log(err);
@@ -48,7 +44,6 @@ minioClient.bucketExists(bucketName, function(err, exists) {
             });
         });
     } else {
-        // PERBAIKAN: Jika bucket SUDAH ADA, tetap paksa set policy-nya ke Public
         minioClient.setBucketPolicy(bucketName, JSON.stringify(publicPolicy), function(err) {
             if (err) return console.log("Gagal update policy:", err);
             console.log("✅ Bucket sudah ada & Status akses diperbarui ke PUBLIC");
@@ -56,4 +51,5 @@ minioClient.bucketExists(bucketName, function(err, exists) {
     }
 });
 
+// EKSPOR OBJEK
 module.exports = { minioClient, bucketName };
