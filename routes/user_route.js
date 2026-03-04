@@ -16,5 +16,5 @@ router.post('/refresh-token', controller.refreshToken);
 router.get('/', controller.getAllUsers); 
 
 // Pastikan ada rute /users di sini
-router.get('/users', userController.getAllUsers);
+
 module.exports = router;

@@ -9,8 +9,6 @@ const MINIO_URL = `${process.env.MINIO_ENDPOINT || 'http://localhost:9000'}/${pr
 exports.getAll = async (req, res) => {
     try {
         const data = await Post.getAll();
-        
-        // Transformasi: Gabungkan alamat MinIO dengan nama file untuk setiap item
         const postsWithUrl = data.map(item => ({
             ...item,
             // Jika gambar ada, buatkan URL lengkap agar frontend tinggal pakai
@@ -43,40 +41,39 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
     try {
         const { judul, isi, category_id } = req.body;
-        let gambar = null;
+        let gambar = null; 
 
         // 1. Validasi Input
         if (!judul || !isi || !category_id) {
             return res.status(400).json({ status: 'error', message: 'Semua field harus diisi' });
         }
 
-        // 2. Proses Upload Gambar ke MinIO
+        // 2. Upload ke MinIO (Jika ada file)
         if (req.file) {
-            // uploadImage harus mengembalikan nama file yang disimpan di MinIO
+            // Pastikan uploadImage return string nama file
             gambar = await uploadImage(req.file); 
         }
 
-        // 3. Simpan ke Database
-        await Post.create(judul, isi, gambar, parseInt(category_id), req.user.id);
+        // 3. Simpan ke Database - URUTAN HARUS TEPAT
+        // Sesuai model: create(judul, isi, gambar, category_id)
+        const newPost = await Post.create(
+            judul, 
+            isi, 
+            gambar, 
+            parseInt(category_id)
+        );
 
         return res.status(201).json({
             status: 'success',
             message: 'Resep berhasil dibuat',
-            data: { 
-                judul, 
-                gambar: gambar ? `${MINIO_URL}/${gambar}` : null 
-            }
+            data: newPost
         });
     } catch (error) {
         console.error("❌ Error Create Post:", error);
-        return res.status(500).json({
-            status: 'error',
-            message: 'Gagal membuat post',
-            error: error.message 
-        });
+        // Tampilkan error asli agar tahu jika ada masalah di MinIO/DB
+        return res.status(500).json({ status: 'error', message: error.message });
     }
 };
-
 exports.update = async (req, res) => {
     try {
         const { id } = req.params;

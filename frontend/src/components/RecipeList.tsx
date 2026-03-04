@@ -1,17 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../lib/axios"; 
-import { Utensils, User, Loader2, Pencil, Trash2, Clock } from "lucide-react";
+import { Utensils, User, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Recipe {
   id: number;
   judul: string;
   isi: string;
-  gambar: string | null;
-  nama_kategori: string;
+  gambar?: string;
+  nama: string;
+  category: string;
   user?: {
     username: string;
-  };
+  }
+  
 }
 
 interface RecipeListProps {
@@ -46,10 +48,15 @@ export default function RecipeList({ category, role }: RecipeListProps) {
     );
   }
 
-  const filteredRecipes = recipes?.filter((recipe) => 
-    category === "Semua" ? true : recipe.nama_kategori === category
-  );
-
+const filteredRecipes = recipes?.filter((recipe) => {
+  if (category === "Semua") return true;
+  
+  // Ambil nama kategori dari objek recipe yang dikirim backend
+  // Pastikan backend Anda sudah melakukan JOIN antara tabel post dan categories
+  const recipeCategoryName = recipe.category || "";
+  
+  return recipeCategoryName?.toLowerCase() === category.toLowerCase();
+});
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {filteredRecipes && filteredRecipes.length > 0 ? (
@@ -79,7 +86,7 @@ export default function RecipeList({ category, role }: RecipeListProps) {
                 
                 {/* Badge Kategori - Glassmorphism */}
                 <div className="absolute top-4 left-4 bg-white/70 backdrop-blur-md px-4 py-1.5 rounded-2xl text-[10px] font-black uppercase text-orange-600 shadow-sm border border-white/50">
-                  {recipe.nama_kategori || "Umum"}
+                  {recipe.nama || "Umum"}
                 </div>
               </div>
               

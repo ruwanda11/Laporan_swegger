@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
+import RegisterPage from "./pages/RegisterPage";
 import UsersPage from "./pages/dashboard/UsersPage";
-import LoginPage from "./pages/dashboard/login"; // Pastikan path-nya sesuai
-import { AddRecipeForm } from "./components/ui/addRecipeForm"; // Import form yang kita buat
-import RecipeDetailPage from "./pages/RecipeDetailPage"; // Pastikan kamu sudah buat file ini
+import LoginPage from "./pages/dashboard/login"; 
+import { AddRecipeForm } from "./components/ui/addRecipeForm";
+import RecipeDetailPage from "./pages/RecipeDetailPage"; 
 
 // Komponen sederhana untuk memproteksi Route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -21,7 +22,7 @@ export default function App() {
       <Routes>
         {/* Route Publik: Bisa diakses siapa saja */}
         <Route path="/login" element={<LoginPage />} />
-        
+        <Route path="/register" element={<RegisterPage />} />
         {/* Redirect dari root ke dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/recipe/:id" element={<RecipeDetailPage />} />

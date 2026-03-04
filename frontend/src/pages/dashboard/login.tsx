@@ -4,7 +4,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import api from "../../lib/axios";
 import { loginSchema, type LoginFormValues } from "../../lib/schema";
-import { Mail, Lock, Loader2, UtensilsCrossed } from "lucide-react"; // Gunakan UtensilsCrossed agar lebih "ResepKita"
+import { Mail, Lock, Loader2, UtensilsCrossed } from "lucide-react"; 
+import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -23,38 +24,41 @@ export default function LoginPage() {
       return res.data;
     },
     onSuccess: (data) => {
-      // Mengambil token dan data user (untuk role)
+      // 1. Ambil token (cek berbagai kemungkinan struktur data dari backend)
       const token = data?.data?.token || data?.token || data?.data?.accessToken || data?.accessToken;
-      const user = data?.data?.user || data?.user;
+      
+      // 2. Ambil data user (Kunci utama agar tombol "Tambah Resep" muncul)
+      const user = data?.data?.user || data?.user || data?.data;
+      console.log("Respon API:", data);
 
       if (token) {
         localStorage.setItem("token", token);
-        // Simpan data user agar bisa digunakan untuk RBAC (Admin/User)
-        if (user) localStorage.setItem("user", JSON.stringify(user));
         
-        navigate("/dashboard"); // Arahkan ke dashboard
-      } else {
-        alert("Token tidak ditemukan. Cek konsol browser.");
-      }
-    },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || "Email atau password salah";
-      alert("Login Gagal: " + message);
-    },
+        // 3. Simpan data user ke localStorage agar Sidebar bisa membaca role: 'admin'
+        if (user && typeof user === 'object' && 'role' in user) {
+      localStorage.setItem("user", JSON.stringify(user));
+      console.log("User tersimpan:", user);
+      navigate("/dashboard");
+    } else {
+      // Jika token ada tapi data user tidak lengkap
+      console.error("Data user tidak valid atau tidak memiliki role:", user);
+      alert("Login berhasil, tapi data profil (role) tidak ditemukan. Pastikan backend mengirimkan data user lengkap.");
+    }
+  } else {
+    alert("Token tidak ditemukan. Silakan cek respon API di Network Tab.");
+  }
+},
   });
 
   return (
     <div 
       className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4"
       style={{ 
-        // Mengganti background dengan gambar kuliner yang lebih elegan
         backgroundImage: `url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')` 
       }}
     >
-      {/* Overlay Gelap dengan sedikit Blur agar form menonjol */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
 
-      {/* Form Card dengan efek Glassmorphism */}
       <div className="relative z-10 w-full max-w-md">
         <div className="bg-white/95 backdrop-blur-md rounded-[2.5rem] shadow-2xl p-10 border border-white/20">
           <div className="text-center mb-10">
@@ -66,7 +70,6 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
-            {/* Input Email */}
             <div>
               <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2 ml-1">
                 <Mail className="w-4 h-4 text-orange-500" /> Email
@@ -82,7 +85,6 @@ export default function LoginPage() {
               {errors.email && <p className="text-red-500 text-xs mt-2 ml-1 font-bold">{errors.email.message}</p>}
             </div>
 
-            {/* Input Password */}
             <div>
               <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2 ml-1">
                 <Lock className="w-4 h-4 text-orange-500" /> Password
@@ -98,7 +100,6 @@ export default function LoginPage() {
               {errors.password && <p className="text-red-500 text-xs mt-2 ml-1 font-bold">{errors.password.message}</p>}
             </div>
 
-            {/* Tombol Submit Elegan */}
             <button
               type="submit"
               disabled={mutation.isPending}
@@ -115,7 +116,13 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-8 text-center text-sm text-gray-500 font-medium">
-            Belum punya akun? <span className="text-orange-600 font-bold cursor-pointer hover:underline">Daftar di sini</span>
+            Belum punya akun?{" "}
+            <Link 
+              to="/register" 
+              className="text-orange-600 font-bold cursor-pointer hover:underline"
+            >
+              Daftar di sini
+            </Link>
           </div>
         </div>
       </div>

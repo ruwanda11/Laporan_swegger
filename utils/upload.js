@@ -18,12 +18,12 @@ exports.uploadImage = async (file) => {
 
         // 3. Upload buffer yang sudah dioptimasi ke MinIO
         await minioClient.putObject(
-            'posts', // Nama bucket kamu
-            fileName,
-            optimizedBuffer,
-            optimizedBuffer.length,
-            { 'Content-Type': 'image/jpeg' }
-        );
+    process.env.MINIO_BUCKET || 'posts', // Gunakan env agar konsisten dengan controller
+    fileName,
+    optimizedBuffer,
+    optimizedBuffer.length,
+    { 'Content-Type': 'image/jpeg' }
+);
 
         return fileName; // Kembalikan nama file agar bisa disimpan di Database
     } catch (error) {

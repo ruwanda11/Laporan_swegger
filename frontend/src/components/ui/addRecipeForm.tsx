@@ -33,10 +33,14 @@ export function AddRecipeForm() {
       formData.append("category_id", String(data.categoryId)); 
       
       // Penanganan File Gambar
-      if (data.image && data.image[0]) {
-        formData.append("gambar", data.image[0]); 
+       if (data.image && data.image[0]) {
+        
+         formData.append("gambar", data.image[0]); 
+      } else{
+        alert ("gambar tidak ditemukan")
       }
-
+      
+        console.log(Object.fromEntries(formData));
       return api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -103,6 +107,8 @@ export function AddRecipeForm() {
              type="file"
              accept="image/*"
              {...register("image")}
+  
+
              className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-2xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-orange-600 file:text-white hover:file:bg-orange-700 transition-all cursor-pointer bg-orange-50/30 rounded-2xl p-2 border-2 border-dashed border-orange-100"
            />
         </div>
@@ -121,7 +127,7 @@ export function AddRecipeForm() {
           {categories?.map((cat: any) => (
             <option key={cat.id} value={cat.id}>
               {/* Gunakan cat.nama atau cat.nama_kategori sesuai field DB kamu */}
-              {cat.nama_kategori || cat.nama}
+              {cat.nama}
             </option>
           ))}
         </select>

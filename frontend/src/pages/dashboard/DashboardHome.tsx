@@ -7,7 +7,7 @@ export default function DashboardHome() {
 
   const categories = [
     { name: "Semua", icon: "✨" },
-    { name: "Makanan", icon: "🍳" },
+    { name: "makanan", icon: "🍳" },
     { name: "Minuman", icon: "🥤" },
     { name: "Cemilan", icon: "🍪" }
   ];

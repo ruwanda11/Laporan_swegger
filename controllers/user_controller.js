@@ -6,17 +6,38 @@ const response = require('../utils/response');
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
+// controllers/auth_controller.js
+
 exports.register = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const hash = await argon2.hash(password);
-        await User.createUser(email, hash);
-        response.success(res, null, "User berhasil dibuat");
-    } catch (err) {
-        response.error(res, "Email sudah terdaftar");
+        // 1. Ambil data dari body (abaikan jika user mengirim 'role')
+        const { username, email, password } = req.body;
+
+        // 2. Validasi sederhana
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: "Data tidak lengkap" });
+        }
+
+        // 3. SIMPAN KE DATABASE
+        // Masukkan string 'user' secara manual sebagai parameter terakhir.
+        // Ini memastikan siapapun yang daftar lewat halaman "Daftar Akun Baru", 
+        // role-nya akan terkunci sebagai 'user'.
+        const newUser = await User.create(
+            username, 
+            email, 
+            password, 
+            'user' // <--- DI SINI KUNCINYA
+        );
+
+        res.status(201).json({
+            status: 'success',
+            message: 'Pendaftaran berhasil sebagai User',
+            user: newUser
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
-
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findByEmail(email);
@@ -42,7 +63,15 @@ exports.login = async (req, res) => {
 
     await User.saveRefreshToken(refreshToken, user.rows[0].id);
 
-    response.success(res, { accessToken, refreshToken }, "Login berhasil");
+    response.success(res, { 
+    accessToken, 
+    refreshToken,
+    user: {
+        id: user.rows[0].id,
+        email: user.rows[0].email,
+        role: user.rows[0].role // BARIS INI WAJIB ADA AGAR TOMBOL MUNCUL
+    }
+}, "Login berhasil");
 };
 
 exports.refreshToken = async (req, res) => {

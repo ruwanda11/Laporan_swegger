@@ -22,4 +22,16 @@ const isAdmin = (req, res, next) => {
     next();
 };
 
+// middlewares/auth.js
+exports.isAdmin = (req, res, next) => {
+    // req.user berasal dari authenticateToken
+    if (req.user && req.user.role === 'admin') {
+        next(); 
+    } else {
+        return res.status(403).json({ 
+            status: 'error', 
+            message: 'Akses ditolak: Hanya Admin yang bisa mengelola resep' 
+        });
+    }
+};
 module.exports = { authenticateToken, isAdmin };
