@@ -4,43 +4,40 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { recipeSchema, type RecipeFormValues } from "../../lib/schema";
 import api from "../../lib/axios"; 
 import { Utensils, ChefHat, PlusCircle, Loader2, Image as ImageIcon } from "lucide-react";
+import { useRef } from "react"; // 1. Import useRef
 
 export function AddRecipeForm() {
   const queryClient = useQueryClient();
+  
+  // 2. Buat ref untuk input file
+  const imageRef = useRef<HTMLInputElement>(null);
 
-  // 1. Ambil data kategori untuk Dropdown
   const { data: categories, isLoading: isLoadingCats } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      // Pastikan endpoint ini sesuai dengan yang ada di backend
       const res = await api.get("/categories");
-      // Mengambil array data (sesuaikan jika return backend-nya res.data.data)
       return res.data;
     },
   });
 
-  // 2. Setup Mutation dengan FormData
   const mutation = useMutation({
-    mutationFn: (data: RecipeFormValues & { image?: FileList }) => {
+    mutationFn: (data: RecipeFormValues) => {
       const formData = new FormData();
       
-      // Sinkronisasi field dengan Backend (judul, isi, category_id)
       formData.append("judul", data.title);   
       formData.append("isi", data.content);   
-      
-      // KONVERSI: Pastikan category_id dikirim sebagai string angka agar 
-      // bisa diparsing backend menjadi Integer
       formData.append("category_id", String(data.categoryId)); 
       
-      // Penanganan File Gambar
-       if (data.image && data.image[0]) {
-        
-         formData.append("gambar", data.image[0]); 
-      } else{
-        alert ("gambar tidak ditemukan")
+      // 3. Ambil file langsung dari Ref, bukan dari 'data' register
+      const file = imageRef.current?.files?.[0];
+      
+      if (file) {
+         formData.append("gambar", file); 
+      } else {
+        // Opsional: Jika gambar wajib, bisa throw error di sini
+        console.warn("Gambar tidak dipilih");
       }
       
-        console.log(Object.fromEntries(formData));
       return api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -48,10 +45,14 @@ export function AddRecipeForm() {
     onSuccess: () => {
       alert("Resep berhasil dibagikan! 🍳");
       reset(); 
-      // Refresh daftar resep agar kategori baru langsung muncul
+      // Reset input file manual karena ref tidak terkontrol oleh useForm
+      if (imageRef.current) {
+        imageRef.current.value = "";
+      }
       queryClient.invalidateQueries({ queryKey: ["recipes"] }); 
     },
     onError: (error: any) => {
+      console.error(error);
       alert("Gagal: " + (error.response?.data?.message || "Terjadi kesalahan"));
     },
   });
@@ -61,7 +62,7 @@ export function AddRecipeForm() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<RecipeFormValues & { image?: FileList }>({
+  } = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
   });
 
@@ -103,15 +104,16 @@ export function AddRecipeForm() {
           <ImageIcon className="w-4 h-4 text-orange-500" /> Foto Masakan
         </label>
         <div className="relative group">
+           {/* 4. Ganti register dengan ref */}
            <input
              type="file"
              accept="image/*"
-             {...register("image")}
-  
-
+             ref={imageRef}
              className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-2xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-orange-600 file:text-white hover:file:bg-orange-700 transition-all cursor-pointer bg-orange-50/30 rounded-2xl p-2 border-2 border-dashed border-orange-100"
            />
         </div>
+        {/* Opsional: Tambahkan validasi manual jika file kosong */}
+        <p className="text-xs text-gray-400 ml-1">*Wajib diisi untuk tampilan menarik</p>
       </div>
 
       {/* Kategori */}
@@ -126,7 +128,6 @@ export function AddRecipeForm() {
           <option value="">{isLoadingCats ? "Memuat..." : "Pilih Kategori"}</option>
           {categories?.map((cat: any) => (
             <option key={cat.id} value={cat.id}>
-              {/* Gunakan cat.nama atau cat.nama_kategori sesuai field DB kamu */}
               {cat.nama}
             </option>
           ))}

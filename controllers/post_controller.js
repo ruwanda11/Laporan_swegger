@@ -38,40 +38,81 @@ exports.getById = async (req, res) => {
     }
 };
 
+
 exports.create = async (req, res) => {
+     console.log("BODY:", req.body);   // ✅ BENAR
+    console.log("FILE:", req.file);   // ✅ BENAR
+
     try {
         const { judul, isi, category_id } = req.body;
-        let gambar = null; 
+        let gambar = null;
 
-        // 1. Validasi Input
+        // 1️⃣ Validasi Field Wajib
         if (!judul || !isi || !category_id) {
-            return res.status(400).json({ status: 'error', message: 'Semua field harus diisi' });
+            return res.status(400).json({
+                status: "error",
+                message: "Judul, isi, dan kategori wajib diisi"
+            });
         }
 
-        // 2. Upload ke MinIO (Jika ada file)
-        if (req.file) {
-            // Pastikan uploadImage return string nama file
-            gambar = await uploadImage(req.file); 
+        // 2️⃣ Validasi Gambar (Jika Upload Wajib)
+        if (!req.file) {
+            return res.status(400).json({
+                status: "error",
+                message: "Gambar tidak ditemukan. Pastikan file dikirim dengan field yang benar."
+            });
         }
 
-        // 3. Simpan ke Database - URUTAN HARUS TEPAT
-        // Sesuai model: create(judul, isi, gambar, category_id)
+        // 3️⃣ Validasi Tipe File
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+
+        if (!allowedTypes.includes(req.file.mimetype)) {
+            return res.status(400).json({
+                status: "error",
+                message: "Format gambar tidak didukung. Gunakan JPG, PNG, atau WEBP."
+            });
+        }
+
+        // 4️⃣ Validasi Ukuran (contoh max 2MB)
+        const maxSize = 2 * 1024 * 1024;
+        if (req.file.size > maxSize) {
+            return res.status(400).json({
+                status: "error",
+                message: "Ukuran gambar terlalu besar. Maksimal 2MB."
+            });
+        }
+
+        // 5️⃣ Upload ke MinIO
+        try {
+            gambar = await uploadImage(req.file);
+        } catch (uploadError) {
+            console.error("❌ Error Upload ke MinIO:", uploadError);
+            return res.status(500).json({
+                status: "error",
+                message: "Gagal mengupload gambar ke server"
+            });
+        }
+
+        // 6️⃣ Simpan ke Database
         const newPost = await Post.create(
-            judul, 
-            isi, 
-            gambar, 
+            judul,
+            isi,
+            gambar,
             parseInt(category_id)
         );
 
         return res.status(201).json({
-            status: 'success',
-            message: 'Resep berhasil dibuat',
+            status: "success",
+            message: "Resep berhasil dibuat",
             data: newPost
         });
+
     } catch (error) {
         console.error("❌ Error Create Post:", error);
-        // Tampilkan error asli agar tahu jika ada masalah di MinIO/DB
-        return res.status(500).json({ status: 'error', message: error.message });
+        return res.status(500).json({
+            status: "error",
+            message: error.message
+        });
     }
 };
 exports.update = async (req, res) => {

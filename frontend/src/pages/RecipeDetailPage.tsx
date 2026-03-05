@@ -51,7 +51,7 @@ export default function RecipeDetailPage() {
           <div className="relative h-[400px] w-full bg-orange-100 flex items-center justify-center">
             {recipe.gambar ? (
               <img 
-                src={`http://localhost:3000/uploads/${recipe.gambar}`} 
+                src={`http://localhost:3000/post/${recipe.gambar}`} 
                 alt={recipe.judul}
                 className="w-full h-full object-cover"
                 onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1495521821757-a1efb6729352?q=80&w=1000&auto=format&fit=crop"; }}
