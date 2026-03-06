@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors'); // <--- 1. Tambahkan ini
+const cors = require('cors'); 
 const swaggerUi = require('swagger-ui-express');
 const multer = require('multer');
 const fs = require('fs');
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 
 // MIDDLEWARE
-app.use(cors()); // <--- 2. Tambahkan ini di atas routes
+app.use(cors()); 
 app.use(express.json());
 
 

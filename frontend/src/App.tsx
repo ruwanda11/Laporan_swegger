@@ -6,6 +6,7 @@ import UsersPage from "./pages/dashboard/UsersPage";
 import LoginPage from "./pages/dashboard/login"; 
 import { AddRecipeForm } from "./components/ui/addRecipeForm";
 import RecipeDetailPage from "./pages/RecipeDetailPage"; 
+import EditRecipePage from "./pages/dashboard/EditRecipePage";
 
 // Komponen sederhana untuk memproteksi Route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -26,7 +27,8 @@ export default function App() {
         {/* Redirect dari root ke dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/recipe/:id" element={<RecipeDetailPage />} />
-
+        <Route path="/edit-recipe/:id" element={<EditRecipePage />} />
+        
         {/* Route Terproteksi: Harus Login dulu */}
         <Route 
           path="/dashboard" 

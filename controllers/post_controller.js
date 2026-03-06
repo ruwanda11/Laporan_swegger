@@ -4,10 +4,15 @@ const { uploadImage } = require('../utils/upload');
 const { minioClient, bucketName } = require('../config/minio');
 
 // Alamat dasar MinIO - Memastikan format URL benar tanpa double slash di akhir
-const MINIO_URL = `${process.env.MINIO_ENDPOINT || 'http://localhost:9000'}/${process.env.MINIO_BUCKET || 'posts'}`;
+const endpoint = process.env.MINIO_ENDPOINT || 'localhost';
+const port = process.env.MINIO_PORT || '9000';
+const bucket = process.env.MINIO_BUCKET || 'posts';
 
+// Gabungkan menjadi URL yang utuh
+const MINIO_URL = `http://${endpoint}:${port}/${bucket}`;
 exports.getAll = async (req, res) => {
     try {
+        
         const data = await Post.getAll();
         const postsWithUrl = data.map(item => ({
             ...item,
