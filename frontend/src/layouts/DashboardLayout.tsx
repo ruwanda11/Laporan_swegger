@@ -19,7 +19,7 @@ export default function DashboardLayout() {
         {/* Header Tetap di Atas */}
         <header className="h-16 border-b flex items-center px-8 bg-white sticky top-0 z-40">
           <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-            Dashboard
+            Dashboard Resep 
           </h2>
         </header>
 

@@ -5,12 +5,13 @@ export default function DashboardHome() {
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const categories = [
-    { name: "Semua", icon: "✨" },
-    { name: "makanan", icon: "🍳" },
-    { name: "Minuman", icon: "🥤" },
-    { name: "Cemilan", icon: "🍪" }
-  ];
+  // Konsistensi penulisan kategori di sini harus sama persis dengan yang ada di database
+const categories = [
+  { name: "Semua", icon: "✨" }, // "Semua" hanyalah label UI, tidak masuk ke DB
+  { name: "Makanan", icon: "🍳" }, // Harus "Makanan"
+  { name: "Minuman", icon: "🥤" }, // Harus "Minuman"
+  { name: "Cemilan", icon: "🍪" }  // Harus "Cemilan"
+];
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
