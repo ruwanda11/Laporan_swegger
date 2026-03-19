@@ -16,6 +16,26 @@ module.exports = {
                 scheme: 'bearer',
                 bearerFormat: 'JWT'
             }
+        },
+        // --- SEKARANG SCHEMAS SEJAJAR DENGAN SECURITYSCHEMES ---
+        schemas: {
+            Post: {
+                type: 'object',
+                properties: {
+                    id: { type: 'integer' },
+                    judul: { type: 'string' },
+                    isi: { type: 'string' },
+                    gambar: { type: 'string' },
+                    category: { type: 'string' }
+                }
+            },
+            Category: {
+                type: 'object',
+                properties: {
+                    id: { type: 'integer' },
+                    nama: { type: 'string' }
+                }
+            }
         }
     },
     security: [{ bearerAuth: [] }],

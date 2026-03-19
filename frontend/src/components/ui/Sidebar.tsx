@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, PlusSquare, LogOut, UtensilsCrossed } from "lucide-react";
+import { LayoutDashboard, PlusSquare, LogOut, UtensilsCrossed, ClipboardList } from "lucide-react";
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -50,10 +50,18 @@ export default function Sidebar() {
         {/* 2. Logika Role-Based Access Control (RBAC) */}
         {/* Tombol ini HANYA muncul jika di localStorage user.role === 'admin' */}
         {isAdmin && (
+          <>
           <NavLink to="/dashboard/add-recipe" className={linkStyle}>
             <PlusSquare className="w-5 h-5" />
             <span className="font-medium">Tambah Resep</span>
           </NavLink>
+
+          {/* 2. MENU BARU: Kelola Postingan (Diletakkan di bawah Tambah Resep) */}
+            <NavLink to="/dashboard/manage-posts" className={linkStyle}>
+              <ClipboardList className="w-5 h-5" />
+              <span className="font-medium">Kelola Postingan</span>
+            </NavLink>
+          </>
         )}
       </nav>
 

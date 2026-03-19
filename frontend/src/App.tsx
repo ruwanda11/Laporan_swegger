@@ -7,7 +7,7 @@ import LoginPage from "./pages/dashboard/login";
 import { AddRecipeForm } from "./components/ui/addRecipeForm";
 import RecipeDetailPage from "./pages/RecipeDetailPage"; 
 import EditRecipePage from "./pages/dashboard/EditRecipePage";
-
+import ManagePosts from "./pages/dashboard/ManagePosts";
 // Komponen sederhana untuk memproteksi Route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
@@ -47,6 +47,7 @@ export default function App() {
               <AddRecipeForm />
             </div>
           } />
+          <Route path="manage-posts" element={<ManagePosts />} />
         </Route>
 
         {/* 404 Not Found - Opsional */}

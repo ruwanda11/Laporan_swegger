@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query"; 
 import api from "../lib/axios";
-import { Utensils, User, Pencil, Trash2 } from "lucide-react";
+import { Utensils, User,  Search as SearchIcon} from "lucide-react";
 import { Link } from "react-router-dom";
 
-const IMAGE_BASE_URL = "http://localhost:3000/upload/"; 
+
 
 interface Recipe {
   id: number;
@@ -24,20 +24,23 @@ interface RecipeListProps {
 
 export default function RecipeList({ category, role }: RecipeListProps) {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const queryClient = useQueryClient(); 
 
   useEffect(() => {
     setPage(1);
   }, [category]);
 
-    const { data: response, isLoading, isError } = useQuery({
-      queryKey: ["recipes", page, category],
+
+    const { data: response, isLoading, isError, refetch } = useQuery({
+      queryKey: ["recipes", page, category, search],
       queryFn: async () => {
         const res = await api.get("/posts", { 
           params: { 
             page, 
             limit: 9,
-            category: category !== "Semua" ? category : ""
+            category: category !== "Semua" ? category : "",
+            search: search.trim() !== "" ? search : undefined,
           } 
         });
         console.log("ISI RESPONS DARI API:", res.data); // Tambahkan ini!
@@ -47,24 +50,18 @@ export default function RecipeList({ category, role }: RecipeListProps) {
   });
 
   
-  const rawData = response?.data?.data || response?.data || [];
-  const recipes: Recipe[] = Array.isArray(rawData) ? rawData : [];
+
+  const recipes: Recipe[] = Array.isArray(response?.data?.data) 
+    ? response.data.data 
+    : (Array.isArray(response?.data) ? response.data : []);
   
   // Ambil meta untuk pagination
   const meta = response?.data?.meta || response?.meta || { totalPages: 0 };
   
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Yakin ingin menghapus resep lezat ini?")) {
-      try {
-        await api.delete(`/posts/${id}`);
-        queryClient.invalidateQueries({ queryKey: ["recipes"] });
-        alert("Resep berhasil dihapus!");
-      } catch (error) {
-        console.error("Gagal hapus:", error);
-        alert("Gagal menghapus resep.");
-      }
-    }
-  };
+  const filteredRecipes = Array.isArray(recipes) 
+  ? recipes.filter((recipe) => recipe.judul.toLowerCase().includes(search.toLowerCase()))
+  : [];
+
 
   if (isLoading) {
     return (
@@ -86,6 +83,18 @@ export default function RecipeList({ category, role }: RecipeListProps) {
 
   return (
     <>
+    <div className="mb-10 relative group max-w-md">
+  <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+    <SearchIcon className="w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+  </div>
+  <input 
+    type="text" 
+    placeholder="Cari resep..." 
+    className="w-full pl-14 pr-6 py-4 bg-white border border-gray-100 rounded-[2rem] shadow-sm outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-400 transition-all" 
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+  />
+</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {recipes.length > 0 ? (
           recipes.map((recipe: Recipe) => (
@@ -137,21 +146,6 @@ export default function RecipeList({ category, role }: RecipeListProps) {
 
               {role === "admin" && (
                 <div className="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0 z-10">
-                  <Link
-                    to={`/edit-recipe/${recipe.id}`}
-                    className="p-3 bg-white/90 backdrop-blur text-blue-600 rounded-2xl shadow-xl hover:bg-blue-600 hover:text-white transition-all active:scale-95"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDelete(recipe.id);
-                    }}
-                    className="p-3 bg-white/90 backdrop-blur text-red-600 rounded-2xl shadow-xl hover:bg-red-600 hover:text-white transition-all active:scale-95"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
                 </div>
               )}
             </div>

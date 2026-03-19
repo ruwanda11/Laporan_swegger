@@ -1,5 +1,8 @@
 const sharp = require('sharp');
 const {minioClient} = require('../config/minio'); // Sesuaikan path config MinIO kamu
+// Contoh di routes/post_route.js
+const upload = require('../middlewares/upload'); // Pastikan ini sudah diimport
+
 
 exports.uploadImage = async (file) => {
     // 1. Validasi apakah file dan buffer ada

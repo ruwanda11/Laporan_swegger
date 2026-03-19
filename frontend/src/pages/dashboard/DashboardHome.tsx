@@ -10,7 +10,7 @@ const categories = [
   { name: "Semua", icon: "✨" }, // "Semua" hanyalah label UI, tidak masuk ke DB
   { name: "Makanan", icon: "🍳" }, // Harus "Makanan"
   { name: "Minuman", icon: "🥤" }, // Harus "Minuman"
-  { name: "Cemilan", icon: "🍪" }  // Harus "Cemilan"
+  { name: "Cemilan", icon: "🍪" }, // Harus "Cemilan"
 ];
 
   return (

@@ -24,6 +24,7 @@ app.use('/api', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/categories', categoryRoute);
 
+
 // SWAGGER
 const swaggerDocument = require('./utils/swagger');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
